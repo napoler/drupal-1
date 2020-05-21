@@ -1,23 +1,29 @@
 # from https://www.drupal.org/docs/8/system-requirements/drupal-8-php-requirements
-FROM php:7.3-fpm-alpine
+FROM php:7.3-apache-stretch
+# TODO switch to buster once https://github.com/docker-library/php/issues/865 is resolved in a clean way (either in the PHP image or in PHP itself)
 
 # install the PHP extensions we need
-# postgresql-dev is needed for https://bugs.alpinelinux.org/issues/3642
 RUN set -eux; \
 	\
-	apk add --no-cache --virtual .build-deps \
-		coreutils \
-		freetype-dev \
-		libjpeg-turbo-dev \
+	if command -v a2enmod; then \
+		a2enmod rewrite; \
+	fi; \
+	\
+	savedAptMark="$(apt-mark showmanual)"; \
+	\
+	apt-get update; \
+	apt-get install -y --no-install-recommends \
+		libfreetype6-dev \
+		libjpeg-dev \
 		libpng-dev \
+		libpq-dev \
 		libzip-dev \
-		postgresql-dev \
 	; \
 	\
 	docker-php-ext-configure gd \
-		--with-freetype-dir=/usr/include \
-		--with-jpeg-dir=/usr/include \
-		--with-png-dir=/usr/include \
+		--with-freetype-dir=/usr \
+		--with-jpeg-dir=/usr \
+		--with-png-dir=/usr \
 	; \
 	\
 	docker-php-ext-install -j "$(nproc)" \
@@ -28,14 +34,19 @@ RUN set -eux; \
 		zip \
 	; \
 	\
-	runDeps="$( \
-		scanelf --needed --nobanner --format '%n#p' --recursive /usr/local \
-			| tr ',' '\n' \
-			| sort -u \
-			| awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
-	)"; \
-	apk add --virtual .drupal-phpexts-rundeps $runDeps; \
-	apk del .build-deps
+# reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
+	apt-mark auto '.*' > /dev/null; \
+	apt-mark manual $savedAptMark; \
+	ldd "$(php -r 'echo ini_get("extension_dir");')"/*.so \
+		| awk '/=>/ { print $3 }' \
+		| sort -u \
+		| xargs -r dpkg-query -S \
+		| cut -d: -f1 \
+		| sort -u \
+		| xargs -rt apt-mark manual; \
+	\
+	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
+	rm -rf /var/lib/apt/lists/*
 
 # set recommended PHP.ini settings
 # see https://secure.php.net/manual/en/opcache.installation.php
@@ -59,7 +70,7 @@ RUN set -eux; \
 	tar -xz --strip-components=1 -f drupal.tar.gz; \
 	rm drupal.tar.gz; \
 	chown -R www-data:www-data sites modules themes
-
+  
 # vim:set ft=dockerfile:
 RUN curl -sS https://getcomposer.org/installer | php \
   && mv composer.phar /usr/local/bin/composer \
@@ -75,5 +86,5 @@ RUN curl -sS https://getcomposer.org/installer | php \
 
 # php -S localhost:80 /var/www/html
 #运行服务
-ENTRYPOINT [ "php", "-S", "0.0.0.0:80","/var/www/html" ]
+# ENTRYPOINT [ "php", "-S", "0.0.0.0:80","/var/www/html" ]
 # CMD curl -fs http://localhost/ || exit 1
