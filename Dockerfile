@@ -50,15 +50,15 @@ RUN { \
 WORKDIR /var/www/html
 
 # https://www.drupal.org/node/3060/release
-# ENV DRUPAL_VERSION 8.8.6
-# ENV DRUPAL_MD5 b88151bb2edc48f5f6950dda6c758260
+ENV DRUPAL_VERSION 8.8.6
+ENV DRUPAL_MD5 b88151bb2edc48f5f6950dda6c758260
 
-# RUN set -eux; \
-# 	curl -fSL "https://ftp.drupal.org/files/projects/drupal-${DRUPAL_VERSION}.tar.gz" -o drupal.tar.gz; \
-# 	echo "${DRUPAL_MD5} *drupal.tar.gz" | md5sum -c -; \
-# 	tar -xz --strip-components=1 -f drupal.tar.gz; \
-# 	rm drupal.tar.gz; \
-# 	chown -R www-data:www-data sites modules themes
+RUN set -eux; \
+	curl -fSL "https://ftp.drupal.org/files/projects/drupal-${DRUPAL_VERSION}.tar.gz" -o drupal.tar.gz; \
+	echo "${DRUPAL_MD5} *drupal.tar.gz" | md5sum -c -; \
+	tar -xz --strip-components=1 -f drupal.tar.gz; \
+	rm drupal.tar.gz; \
+	chown -R www-data:www-data sites modules themes
 
 # vim:set ft=dockerfile:
 RUN curl -sS https://getcomposer.org/installer | php \
@@ -70,6 +70,8 @@ RUN curl -sS https://getcomposer.org/installer | php \
   && chmod +x drupal.phar \
   && mv drupal.phar /usr/local/bin/drupal \
   && echo "export PATH=~/.composer/vendor/bin:\$PATH" >> ~/.bash_profile \
+  && composer config -g repo.packagist composer https://packagist.phpcomposer.com \
+  && composer require drupal/console:~1.0 --prefer-dist --optimize-autoloader
 
 # php -S localhost:80 /var/www/html
 #运行服务
