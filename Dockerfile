@@ -65,20 +65,20 @@ COPY sources.list /etc/apt/
 WORKDIR /var/www/html
 
 # https://www.drupal.org/node/3060/release
-# ENV DRUPAL_VERSION 8.8.6
-# ENV DRUPAL_MD5 b88151bb2edc48f5f6950dda6c758260
+ENV DRUPAL_VERSION 8.8.6
+ENV DRUPAL_MD5 b88151bb2edc48f5f6950dda6c758260
 
-# RUN set -eux; \
-# 	curl -fSL "https://ftp.drupal.org/files/projects/drupal-${DRUPAL_VERSION}.tar.gz" -o drupal.tar.gz; \
-# 	echo "${DRUPAL_MD5} *drupal.tar.gz" | md5sum -c -; \
-# 	tar -xz --strip-components=1 -f drupal.tar.gz; \
-# 	rm drupal.tar.gz; \
-# 	chown -R www-data:www-data sites modules themes
 RUN set -eux; \
-	curl -fSL "https://ftp.drupal.org/files/projects/lightning-8.x-4.103-core.tar.gz" -o drupal.tar.gz; \
+	curl -fSL "https://ftp.drupal.org/files/projects/drupal-${DRUPAL_VERSION}.tar.gz" -o drupal.tar.gz; \
+	echo "${DRUPAL_MD5} *drupal.tar.gz" | md5sum -c -; \
 	tar -xz --strip-components=1 -f drupal.tar.gz; \
 	rm drupal.tar.gz; \
 	chown -R www-data:www-data sites modules themes
+# RUN set -eux; \
+# 	curl -fSL "https://ftp.drupal.org/files/projects/lightning-8.x-4.103-core.tar.gz" -o drupal.tar.gz; \
+# 	tar -xz --strip-components=1 -f drupal.tar.gz; \
+# 	rm drupal.tar.gz; \
+# 	chown -R www-data:www-data sites modules themes
 
 # vim:set ft=dockerfile:
 RUN curl -sS https://getcomposer.org/installer | php \
