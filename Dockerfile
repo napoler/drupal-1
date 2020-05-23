@@ -74,7 +74,7 @@ RUN set -eux; \
 	tar -xz --strip-components=1 -f drupal.tar.gz; \
 	rm drupal.tar.gz; \
 	chown -R www-data:www-data sites modules themes; \
-  curl -fSL "https://github-production-release-asset-2e65be.s3.amazonaws.com/627735/55a10600-937e-11ea-87d0-e0a71499c872?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAIWNJYAX4CSVEH53A%2F20200521%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20200521T172157Z&X-Amz-Expires=300&X-Amz-Signature=ba3f0df87418d7e45e16ca87f76c8f75e2ada0735734da0eb1e5a83b06c601c9&X-Amz-SignedHeaders=host&actor_id=2583004&repo_id=627735&response-content-disposition=attachment%3B%20filename%3Dadminer-4.7.7.php&response-content-type=application%2Foctet-stream"  -o adminer.php; 
+#   curl -fSL "https://github-production-release-asset-2e65be.s3.amazonaws.com/627735/55a10600-937e-11ea-87d0-e0a71499c872?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAIWNJYAX4CSVEH53A%2F20200521%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20200521T172157Z&X-Amz-Expires=300&X-Amz-Signature=ba3f0df87418d7e45e16ca87f76c8f75e2ada0735734da0eb1e5a83b06c601c9&X-Amz-SignedHeaders=host&actor_id=2583004&repo_id=627735&response-content-disposition=attachment%3B%20filename%3Dadminer-4.7.7.php&response-content-type=application%2Foctet-stream"  -o adminer.php; 
 # RUN set -eux; \
 # 	curl -fSL "https://ftp.drupal.org/files/projects/lightning-8.x-4.103-core.tar.gz" -o drupal.tar.gz; \
 # 	tar -xz --strip-components=1 -f drupal.tar.gz; \
